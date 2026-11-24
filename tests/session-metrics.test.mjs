@@ -1,0 +1,102 @@
+import assert from "node:assert/strict";
+import { promises as fs } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { test } from "node:test";
+
+import { aggregate, classifyGate, percentile, readEntries } from "../session-metrics.mjs";
+
+function entry(type, message) {
+  return JSON.stringify({ type, timestamp: message?.timestamp, message });
+}
+
+const assistant = (timestamp, blocks, usage) => ({
+  role: "assistant",
+  timestamp,
+  provider: "p",
+  model: "m",
+  thinkingLevel: "high",
+  usage,
+  content: blocks,
+});
+
+const call = (id, name, args = {}) => ({ type: "toolCall", id, name, arguments: args });
+
+test("gate refusals are classified by their stable opening text", () => {
+  assert.equal(classifyGate("Action-scope fidelity: target 'x' is not an exact approved path; blocked."), "action_scope");
+  assert.equal(classifyGate("Sensitive environment files are protected. Content reads..."), "sensitive_path");
+  assert.equal(classifyGate("Shell access to AgenticLab knowledge, the private pending queue..."), "knowledge_shell");
+  assert.equal(classifyGate("Project knowledge change was not approved."), "knowledge_write");
+  assert.equal(classifyGate("All good"), null);
+});
+
+test("percentiles tolerate small and empty samples", () => {
+  assert.equal(percentile([], 50), "");
+  assert.equal(percentile([5], 50), "5.000");
+  assert.equal(percentile([1, 2, 3, 4], 50), "2.000");
+  assert.equal(percentile([1, 2, 3, 4], 90), "4.000");
+});
+
+test("aggregate counts messages, tools, tokens, and gate refusals", async (t) => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "session-metrics-"));
+  t.after(async () => fs.rm(dir, { recursive: true, force: true }));
+  const file = path.join(dir, "session.jsonl");
+  const usage = { input: 10, output: 5, cacheRead: 3, cacheWrite: 0, totalTokens: 18, cost: { total: 0.5 } };
+
+  await fs.writeFile(file, [
+    entry("session", undefined),
+    entry("message", { role: "user", timestamp: 1000 }),
+    entry("message", assistant(2000, [call("c1", "bash", { command: "pytest -q" })], usage)),
+    entry("message", { role: "toolResult", toolCallId: "c1", toolName: "bash", isError: false, timestamp: 3500 }),
+    entry("message", assistant(9000, [call("c2", "bash", { command: "cat .env" })], usage)),
+    entry("message", {
+      role: "toolResult", toolCallId: "c2", toolName: "bash", isError: true, timestamp: 9500,
+      content: [{ type: "text", text: "Sensitive environment files are protected." }],
+    }),
+  ].join("\n"), "utf8");
+
+  const entries = await readEntries(file);
+  const { row, gateRows, roundtripRows } = aggregate({
+    runId: "T1",
+    session: { role: "delivery_pi", label: "unit", entries },
+  });
+  const byName = Object.fromEntries(row.map((value, index) => [index, value]));
+
+  assert.equal(byName[0], "run");
+  assert.equal(byName[8], 1);   // user_messages
+  assert.equal(byName[9], 2);   // assistant_messages
+  assert.equal(byName[11], 2);  // tool_calls
+  assert.equal(byName[13], 1);  // isError flags
+  assert.equal(byName[17], 2);  // bash calls
+  assert.equal(byName[21], 20); // input tokens
+  assert.equal(byName[25], 36); // total tokens
+  assert.equal(byName[26], "1.000000000");
+  assert.equal(byName[30], 0);  // compactions
+  assert.equal(byName[31], 0);  // playwright commands
+
+  assert.equal(gateRows.length, 1);
+  assert.equal(gateRows[0][3], "sensitive_path");
+  assert.equal(roundtripRows.length, 1);
+  assert.equal(roundtripRows[0][5], "2.00"); // 1.5s + 0.5s
+});
+
+test("a declared window excludes messages outside it", async (t) => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "session-metrics-window-"));
+  t.after(async () => fs.rm(dir, { recursive: true, force: true }));
+  const file = path.join(dir, "session.jsonl");
+  await fs.writeFile(file, [
+    entry("message", { role: "user", timestamp: 1000 }),
+    entry("message", { role: "user", timestamp: 5000 }),
+    entry("message", { role: "user", timestamp: 9000 }),
+  ].join("\n"), "utf8");
+
+  const entries = await readEntries(file);
+  const { row } = aggregate({
+    runId: "T2",
+    session: { role: "delivery_pi", label: "unit", entries, windowStart: 2000, windowEnd: 6000 },
+  });
+
+  assert.equal(row[8], 1);      // only the middle user message
+  assert.equal(row[6], 4);      // 4 second declared span
+  assert.equal(row[7], "declared window");
+});
