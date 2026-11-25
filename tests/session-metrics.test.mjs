@@ -100,3 +100,33 @@ test("a declared window excludes messages outside it", async (t) => {
   assert.equal(row[6], 4);      // 4 second declared span
   assert.equal(row[7], "declared window");
 });
+
+test("retrieval activation and outcomes are derived from the adapter's own status", async (t) => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "session-metrics-retrieval-"));
+  t.after(async () => fs.rm(dir, { recursive: true, force: true }));
+  const file = path.join(dir, "session.jsonl");
+  const usage = { input: 1, output: 1, cacheRead: 0, cacheWrite: 0, totalTokens: 2, cost: { total: 0 } };
+
+  await fs.writeFile(file, [
+    entry("message", assistant(1000, [call("r1", "readKnowledgeRecords", { query: "a" })], usage)),
+    entry("message", {
+      role: "toolResult", toolCallId: "r1", toolName: "readKnowledgeRecords", isError: false, timestamp: 1200,
+      content: [{ type: "text", text: JSON.stringify({ status: "ok", count: 2, complete: true }) }],
+    }),
+    entry("message", assistant(2000, [call("r2", "readKnowledgeRecords", { query: "b" })], usage)),
+    entry("message", {
+      role: "toolResult", toolCallId: "r2", toolName: "readKnowledgeRecords", isError: false, timestamp: 2200,
+      content: [{ type: "text", text: JSON.stringify({ status: "no_match", count: 0, complete: true }) }],
+    }),
+  ].join("\n"), "utf8");
+
+  const entries = await readEntries(file);
+  const { row } = aggregate({ runId: "T3", session: { role: "delivery_pi", label: "unit", entries } });
+  const retrievalStart = 35; // index of retrieval_calls in the session row
+
+  assert.equal(row[retrievalStart], 2, "two retrieval calls");
+  assert.equal(row[retrievalStart + 1], 1, "one applicable result");
+  assert.equal(row[retrievalStart + 2], 1, "one no_match result");
+  assert.equal(row[retrievalStart + 3], 0, "no filtered results");
+  assert.equal(row[retrievalStart + 4], 0, "no unavailable results");
+});

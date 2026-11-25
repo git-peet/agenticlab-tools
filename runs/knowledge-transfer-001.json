@@ -1,0 +1,12 @@
+{
+  "runId": "ALPHA-KNOWLEDGE-TRANSFER-001",
+  "outDir": "/home/peet/Projects/AgenticLab-tools/out",
+  "sessions": [
+    { "path": "/home/peet/.pi/agent/sessions/--home-peet-Projects-exp11--/2026-11-24T13-47-59-020Z_01a20dd0-36ac-7567-aed9-30e75b30ce0b.jsonl", "role": "delivery_pi", "label": "exp11-control",
+      "start": "2026-11-24T13:48:16Z", "attributionStatus": "run_window",
+      "acceptancePassed": 4, "acceptanceTotal": 7, "notes": "control: empty knowledge corpus" },
+    { "path": "/home/peet/.pi/agent/sessions/--home-peet-Projects-exp12--/2026-11-24T13-48-03-955Z_01a20dd0-49f3-7059-a07f-90467204fb06.jsonl", "role": "delivery_pi", "label": "exp12-treatment",
+      "start": "2026-11-24T13:48:16Z", "attributionStatus": "run_window",
+      "acceptancePassed": 5, "acceptanceTotal": 7, "notes": "treatment: one convention record available, never retrieved" }
+  ]
+}

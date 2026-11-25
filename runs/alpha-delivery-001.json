@@ -1,0 +1,26 @@
+{
+  "runId": "ALPHA-DELIVERY-001",
+  "outDir": "/home/peet/Projects/AgenticLab-tools/out",
+  "sessions": [
+    { "path": "/home/peet/.pi/agent/sessions/--home-peet-Projects-exp10--/2026-11-24T12-14-25-574Z_01a20d7a-8f26-75cc-adf4-39b674d69c74.jsonl", "role": "delivery_pi", "label": "exp10-pbi1",
+      "start": "2026-11-24T12:16:40Z", "end": "2026-11-24T12:33:10Z",
+      "attributionStatus": "run_window", "acceptancePassed": 13, "acceptanceTotal": 13,
+      "notes": "PBI 1 python-version, /plan+/implement" },
+    { "path": "/home/peet/.pi/agent/sessions/--home-peet-Projects-exp10--/2026-11-24T12-32-57-276Z_01a20d8b-85bc-749b-b53b-4f363ade692a.jsonl", "role": "delivery_pi", "label": "exp10-pbi2",
+      "start": "2026-11-24T12:33:11Z", "end": "2026-11-24T12:37:20Z",
+      "attributionStatus": "run_window", "acceptancePassed": 29, "acceptanceTotal": 29,
+      "notes": "PBI 2 alembic chain, default work" },
+    { "path": "/home/peet/.pi/agent/sessions/--home-peet-Projects-exp10--/2026-11-24T12-32-57-276Z_01a20d8b-85bc-749b-b53b-4f363ade692a.jsonl", "role": "delivery_pi", "label": "exp10-pbi3",
+      "start": "2026-11-24T12:37:21Z", "end": "2026-11-24T12:43:15Z",
+      "attributionStatus": "run_window", "acceptancePassed": 33, "acceptanceTotal": 33,
+      "notes": "PBI 3 workflow paths, default work" },
+    { "path": "/home/peet/.pi/agent/sessions/--home-peet-Projects-exp10--/2026-11-24T12-32-57-276Z_01a20d8b-85bc-749b-b53b-4f363ade692a.jsonl", "role": "delivery_pi", "label": "exp10-pbi4",
+      "start": "2026-11-24T12:43:16Z", "end": "2026-11-24T13:03:00Z",
+      "attributionStatus": "run_window", "acceptancePassed": 36, "acceptanceTotal": 36,
+      "notes": "PBI 4 doc links, /plan+/implement; includes promotion gates and disposition" },
+    { "path": "/home/peet/.pi/agent/sessions/--home-peet-Projects-exp10--/2026-11-24T13-03-36-516Z_01a20da7-9644-70d5-b90b-07ffe8930986.jsonl", "role": "delivery_pi", "label": "exp10-pbi5",
+      "start": "2026-11-24T13:03:47Z", "attributionStatus": "run_window",
+      "acceptancePassed": 37, "acceptanceTotal": 37,
+      "notes": "PBI 5 compose env, default work, knowledge retrieval test" }
+  ]
+}

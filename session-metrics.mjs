@@ -47,6 +47,8 @@ const SESSION_HEADER = [
   "provider", "model", "thinking_level", "compactions",
   "playwright_commands_in_session", "playwright_nonzero_tool_results",
   "acceptance_tests_passed", "acceptance_tests_total",
+  "retrieval_calls", "retrieval_applicable", "retrieval_no_match",
+  "retrieval_filtered", "retrieval_unavailable",
   "attribution_status", "notes",
 ];
 
@@ -151,6 +153,7 @@ export function aggregate({ runId, session }) {
   let provider = "";
   let model = "";
   let thinking = "";
+  const retrieval = { calls: 0, applicable: 0, noMatch: 0, filtered: 0, unavailable: 0 };
   let testCommands = 0;
   let playwrightCommands = 0;
   let playwrightFailures = 0;
@@ -186,6 +189,7 @@ export function aggregate({ runId, session }) {
         if (block?.type !== "toolCall") continue;
         counts.toolCalls += 1;
         const name = block.name ?? "unknown";
+        if (name === "readKnowledgeRecords") retrieval.calls += 1;
         byTool.set(name, (byTool.get(name) ?? 0) + 1);
         const command = typeof block.arguments?.command === "string" ? block.arguments.command : "";
         pending.set(block.id, { name, timestamp: message.timestamp, command });
@@ -206,6 +210,22 @@ export function aggregate({ runId, session }) {
       if (start && end) {
         if (!roundtrips.has(name)) roundtrips.set(name, []);
         roundtrips.get(name).push((end - start) / 1000);
+      }
+      if (name === "readKnowledgeRecords") {
+        // Outcome is the adapter's own status field, not the model's narration.
+        const text = textOf(message);
+        let status = null;
+        try {
+          status = JSON.parse(text).status ?? null;
+        } catch {
+          const match = text.match(/"status"\s*:\s*"([a-z_]+)"/u);
+          status = match ? match[1] : null;
+        }
+        if (status === "ok") retrieval.applicable += 1;
+        else if (status === "no_match" || status === "not_found") retrieval.noMatch += 1;
+        else if (status === "filtered") retrieval.filtered += 1;
+        else if (status && (status === "unavailable" || status === "no_knowledge_store")) retrieval.unavailable += 1;
+        else retrieval.unavailable += 1;
       }
       if (message.isError) {
         counts.toolErrors += 1;
@@ -246,6 +266,7 @@ export function aggregate({ runId, session }) {
     provider, model, thinking, counts.compactions,
     playwrightCommands, playwrightFailures,
     session.acceptancePassed ?? "", session.acceptanceTotal ?? "",
+    retrieval.calls, retrieval.applicable, retrieval.noMatch, retrieval.filtered, retrieval.unavailable,
     session.attributionStatus ?? "run_window",
     [
       session.notes,
