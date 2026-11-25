@@ -1,0 +1,61 @@
+{
+  "label": "exp11",
+  "scoredAt": "2026-11-25T07:14:37.047Z",
+  "score": {
+    "rubric": "check-script-convention",
+    "artifact": "/tmp/rubric-check/site-exp11",
+    "scored": 4,
+    "total": 7,
+    "criteria": [
+      {
+        "id": "script-path",
+        "description": "checker lives at scripts/check_compose_env.py",
+        "weight": 1,
+        "met": true,
+        "evidence": "present: scripts/check_compose_env.py"
+      },
+      {
+        "id": "summary-line",
+        "description": "clean run exits 0 and ends with 'summary: check=… status=…'",
+        "weight": 1,
+        "met": false,
+        "evidence": "exit=0 | no output matching ^summary: check="
+      },
+      {
+        "id": "severity-prefixes",
+        "description": "lowercase 'error:' prefix on a finding",
+        "weight": 1,
+        "met": false,
+        "evidence": "exit=1 | no output matching ^error: "
+      },
+      {
+        "id": "unusable-input",
+        "description": "'fatal:' for unusable input with exit 2",
+        "weight": 1,
+        "met": false,
+        "evidence": "exit=1 | no output matching ^fatal: "
+      },
+      {
+        "id": "exit-on-error",
+        "description": "exit 1 when errors are reported",
+        "weight": 1,
+        "met": true,
+        "evidence": "exit=1 | exit code only"
+      },
+      {
+        "id": "root-flag",
+        "description": "supports --root PATH for test isolation",
+        "weight": 1,
+        "met": true,
+        "evidence": "\"--root\","
+      },
+      {
+        "id": "tests-present",
+        "description": "unit tests live beside the checker",
+        "weight": 1,
+        "met": true,
+        "evidence": "present: scripts/tests/test_check_compose_env.py"
+      }
+    ]
+  }
+}

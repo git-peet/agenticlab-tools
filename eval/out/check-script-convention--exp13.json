@@ -1,0 +1,61 @@
+{
+  "label": "exp13",
+  "scoredAt": "2026-11-25T07:14:37.555Z",
+  "score": {
+    "rubric": "check-script-convention",
+    "artifact": "/tmp/rubric-check/site-exp13",
+    "scored": 7,
+    "total": 7,
+    "criteria": [
+      {
+        "id": "script-path",
+        "description": "checker lives at scripts/check_compose_env.py",
+        "weight": 1,
+        "met": true,
+        "evidence": "present: scripts/check_compose_env.py"
+      },
+      {
+        "id": "summary-line",
+        "description": "clean run exits 0 and ends with 'summary: check=… status=…'",
+        "weight": 1,
+        "met": true,
+        "evidence": "exit=0 | summary: check=compose-env status=ok files=3 documented=13 infos=4 errors=0 warnings=3"
+      },
+      {
+        "id": "severity-prefixes",
+        "description": "lowercase 'error:' prefix on a finding",
+        "weight": 1,
+        "met": true,
+        "evidence": "exit=1 | error: compose.yml:4: required interpolation '${ALPHA_REQUIRED:?set it}' is not documented in .env.example"
+      },
+      {
+        "id": "unusable-input",
+        "description": "'fatal:' for unusable input with exit 2",
+        "weight": 1,
+        "met": true,
+        "evidence": "exit=2 | fatal: /nonexistent-rubric-path: repository root not found"
+      },
+      {
+        "id": "exit-on-error",
+        "description": "exit 1 when errors are reported",
+        "weight": 1,
+        "met": true,
+        "evidence": "exit=1 | exit code only"
+      },
+      {
+        "id": "root-flag",
+        "description": "supports --root PATH for test isolation",
+        "weight": 1,
+        "met": true,
+        "evidence": "\"--root\","
+      },
+      {
+        "id": "tests-present",
+        "description": "unit tests live beside the checker",
+        "weight": 1,
+        "met": true,
+        "evidence": "present: scripts/tests/test_check_compose_env.py"
+      }
+    ]
+  }
+}

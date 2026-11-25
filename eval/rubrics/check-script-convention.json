@@ -1,0 +1,63 @@
+{
+  "id": "check-script-convention",
+  "title": "Repository check-script convention (compose env checker)",
+  "task": "scripts/check_compose_env.py reporting compose interpolation coverage against .env.example",
+  "notes": "Seven criteria matching the tables published in ALPHA-DELIVERY-001, ALPHA-KNOWLEDGE-TRANSFER-001, ALPHA-KNOWLEDGE-APPLICATION-001 and ALPHA-KNOWLEDGE-EXAMPLE-ISOLATION-001.",
+  "criteria": [
+    {
+      "id": "script-path",
+      "type": "file-exists",
+      "path": "scripts/check_compose_env.py",
+      "description": "checker lives at scripts/check_compose_env.py"
+    },
+    {
+      "id": "summary-line",
+      "type": "run-expect",
+      "script": "scripts/check_compose_env.py",
+      "expectExit": 0,
+      "expectStdout": "^summary: check=",
+      "description": "clean run exits 0 and ends with 'summary: check=\u2026 status=\u2026'"
+    },
+    {
+      "id": "severity-prefixes",
+      "type": "run-expect",
+      "script": "scripts/check_compose_env.py",
+      "fixture": "required-var",
+      "expectStdout": "^error: ",
+      "description": "lowercase 'error:' prefix on a finding"
+    },
+    {
+      "id": "unusable-input",
+      "type": "run-expect",
+      "script": "scripts/check_compose_env.py",
+      "args": [
+        "--root",
+        "/nonexistent-rubric-path"
+      ],
+      "expectExit": 2,
+      "expectOutput": "^fatal: ",
+      "description": "'fatal:' for unusable input with exit 2"
+    },
+    {
+      "id": "exit-on-error",
+      "type": "run-expect",
+      "script": "scripts/check_compose_env.py",
+      "fixture": "required-var",
+      "expectExit": 1,
+      "description": "exit 1 when errors are reported"
+    },
+    {
+      "id": "root-flag",
+      "type": "source-contains",
+      "path": "scripts/check_compose_env.py",
+      "pattern": "--root",
+      "description": "supports --root PATH for test isolation"
+    },
+    {
+      "id": "tests-present",
+      "type": "file-exists",
+      "path": "scripts/tests/test_check_compose_env.py",
+      "description": "unit tests live beside the checker"
+    }
+  ]
+}
