@@ -1,0 +1,8 @@
+{
+  "runId": "ALPHA-KNOWLEDGE-APPLICATION-001",
+  "outDir": "/home/peet/Projects/AgenticLab-tools/out",
+  "sessions": [
+    { "path": "/home/peet/.pi/agent/sessions/--home-peet-Projects-exp13--/2026-11-25T05-39-08-766Z_01a21137-075e-777b-bb08-046b8bcdb8fb.jsonl", "role": "delivery_pi", "label": "exp13-treatmentA", "start": "2026-11-25T05:39:35Z", "attributionStatus": "run_window", "acceptancePassed": 7, "acceptanceTotal": 7, "notes": "example-bearing record" },
+    { "path": "/home/peet/.pi/agent/sessions/--home-peet-Projects-exp14--/2026-11-25T05-39-21-740Z_01a21137-3a0b-717d-9507-8ce1bb997464.jsonl", "role": "delivery_pi", "label": "exp14-treatmentB", "start": "2026-11-25T05:39:35Z", "attributionStatus": "run_window", "acceptancePassed": 7, "acceptanceTotal": 7, "notes": "example-bearing record, second run" }
+  ]
+}

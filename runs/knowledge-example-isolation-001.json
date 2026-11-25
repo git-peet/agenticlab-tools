@@ -1,0 +1,7 @@
+{
+  "runId": "ALPHA-KNOWLEDGE-EXAMPLE-ISOLATION-001",
+  "outDir": "/home/peet/Projects/AgenticLab-tools/out",
+  "sessions": [
+    { "path": "/home/peet/.pi/agent/sessions/--home-peet-Projects-exp15--/2026-11-25T05-56-43-129Z_01a21147-1df8-7499-b0f8-77cc3c41ff6a.jsonl", "role": "delivery_pi", "label": "exp15-verbose+example", "start": "2026-11-25T05:56:56Z", "attributionStatus": "run_window", "acceptancePassed": 7, "acceptanceTotal": 7, "notes": "verbatim verbose prose plus example block" }
+  ]
+}
