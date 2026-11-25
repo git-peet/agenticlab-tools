@@ -16,7 +16,8 @@
       "script": "scripts/check_compose_env.py",
       "expectExit": 0,
       "expectStdout": "^summary: check=",
-      "description": "clean run exits 0 and ends with 'summary: check=\u2026 status=\u2026'"
+      "description": "clean fixture run exits 0 and ends with 'summary: check=\u2026 status=\u2026'",
+      "fixture": "documented"
     },
     {
       "id": "severity-prefixes",

@@ -1,6 +1,6 @@
 {
   "label": "exp11",
-  "scoredAt": "2026-11-25T07:14:37.047Z",
+  "scoredAt": "2026-11-25T07:41:38.797Z",
   "score": {
     "rubric": "check-script-convention",
     "artifact": "/tmp/rubric-check/site-exp11",
@@ -16,7 +16,7 @@
       },
       {
         "id": "summary-line",
-        "description": "clean run exits 0 and ends with 'summary: check=… status=…'",
+        "description": "clean fixture run exits 0 and ends with 'summary: check=… status=…'",
         "weight": 1,
         "met": false,
         "evidence": "exit=0 | no output matching ^summary: check="

@@ -1,6 +1,6 @@
 {
   "label": "exp12",
-  "scoredAt": "2026-11-25T07:14:37.306Z",
+  "scoredAt": "2026-11-25T07:41:39.053Z",
   "score": {
     "rubric": "check-script-convention",
     "artifact": "/tmp/rubric-check/site-exp12",
@@ -16,10 +16,10 @@
       },
       {
         "id": "summary-line",
-        "description": "clean run exits 0 and ends with 'summary: check=… status=…'",
+        "description": "clean fixture run exits 0 and ends with 'summary: check=… status=…'",
         "weight": 1,
         "met": true,
-        "evidence": "exit=0 | summary: check=compose-env status=ok documented=13 interpolated=12 compose_files=3 errors=0 warnings=3 infos=4"
+        "evidence": "exit=0 | summary: check=compose-env status=ok documented=1 interpolated=1 compose_files=1 errors=0 warnings=0 infos=0"
       },
       {
         "id": "severity-prefixes",

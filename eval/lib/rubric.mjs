@@ -29,6 +29,16 @@ export async function loadRubric(file) {
 
 /** A fixture is materialised outside the artifact so scoring never mutates it. */
 async function materialiseFixture(kind, dir) {
+  if (kind === "documented") {
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+      path.join(dir, "compose.yml"),
+      "services:\n  check:\n    environment:\n      - A=${DOCUMENTED_VAR:-default}\n",
+      "utf8",
+    );
+    await fs.writeFile(path.join(dir, ".env.example"), "DOCUMENTED_VAR=value\n", "utf8");
+    return dir;
+  }
   if (kind !== "required-var") throw new Error(`unknown fixture: ${kind}`);
   await fs.mkdir(dir, { recursive: true });
   await fs.writeFile(
