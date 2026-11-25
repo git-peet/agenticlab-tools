@@ -7,7 +7,7 @@ import { test } from "node:test";
 import {
   classifyActionScope,
   readApprovedScope,
-} from "../../../C03-clean-payload/adapters/pi/action-scope-policy.mjs";
+} from "./_payload.mjs";
 
 const CHECKPOINT = "AgenticLab/knowledge/checkpoints/plan-checkpoint.json";
 

@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { test } from "node:test";
 
-import { referencesPrivateQueue } from "../../../C03-clean-payload/adapters/pi/knowledge-capture-core.mjs";
-import { shellReferencesKnowledge } from "../../../C03-clean-payload/adapters/pi/knowledge-write-policy.mjs";
+import { referencesPrivateQueue } from "./_payload.mjs";
+import { shellReferencesKnowledge } from "./_payload.mjs";
 
 const CWD = path.resolve(import.meta.dirname, "..");
 const CHECKPOINT = "AgenticLab/knowledge/checkpoints/plan-checkpoint.json";

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { describesSystemBehavior } from "../../../C03-clean-payload/adapters/pi/knowledge-capture-core.mjs";
+import { describesSystemBehavior } from "./_payload.mjs";
 
 const systemClaims = [
   {

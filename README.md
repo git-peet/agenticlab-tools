@@ -97,5 +97,9 @@ interpreted run result; they are never inferred from session counts.
 ## Tests
 
 ```bash
-node --test tests/
+node --test tests/                 # extractor unit tests
+node --test tests/payload/*.test.mjs   # payload regression suites
 ```
+
+The payload suites resolve their target from `PAYLOAD_ROOT`, defaulting to the sibling
+`Projects/C03-clean-payload` checkout. See `tests/README.md`.

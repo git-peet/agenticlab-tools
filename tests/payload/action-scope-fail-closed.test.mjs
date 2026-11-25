@@ -4,8 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 
-import { registerActionScopeGate } from "../../../C03-clean-payload/adapters/pi/action-scope-gate.mjs";
-import { CHECKPOINT_RELATIVE_PATH } from "../../../C03-clean-payload/adapters/pi/action-scope-policy.mjs";
+import { registerActionScopeGate } from "./_payload.mjs";
+import { CHECKPOINT_RELATIVE_PATH } from "./_payload.mjs";
 
 function fakePi() {
   const handlers = new Map();

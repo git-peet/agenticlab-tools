@@ -10,7 +10,7 @@ import {
   classifyImplementationInput,
   extractValidationCommands,
   readApprovedScope,
-} from "../../../C03-clean-payload/adapters/pi/action-scope-policy.mjs";
+} from "./_payload.mjs";
 
 async function isolatedWorkspace(t, checkpoint) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "c04-action-scope-"));

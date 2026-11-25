@@ -3,21 +3,24 @@
 External tests for the AgenticLab clean payload. They live here, not in the payload,
 because the distributed payload ships no test folder.
 
-They import `../../../C03-clean-payload/adapters/pi/*` directly, so they must stay in this
-repository position and the clean payload checkout must exist as a sibling:
+## Pointing at a payload
 
-```text
-Projects/
-├── C03-clean-payload/      # payload under test
-└── AgenticLab-tools/
-    └── tests/payload/      # these suites
-```
+`tests/payload/_payload.mjs` resolves the payload under test:
 
-Run:
+- default: the sibling checkout `Projects/C03-clean-payload`
+- override: `PAYLOAD_ROOT=/path/to/payload`
 
 ```bash
+# sibling layout (normal local use)
 node --test tests/payload/*.test.mjs
+
+# any other checkout
+PAYLOAD_ROOT=/elsewhere/clean-payload node --test tests/payload/*.test.mjs
 ```
+
+The suites import from `_payload.mjs` rather than from the payload directly, so the
+payload location is a single decision in one file. A wrong `PAYLOAD_ROOT` fails loudly
+with `ERR_MODULE_NOT_FOUND` rather than silently skipping.
 
 | Suite | Covers |
 |---|---|
@@ -30,5 +33,4 @@ node --test tests/payload/*.test.mjs
 | `payload-refresh.test.mjs` | managed paths, manifests, conflict detection, record without payload, CLI behaviour |
 | `system-subject-guard.test.mjs` | rejection of candidates describing the installation itself |
 
-These are external and expect the payload at a fixed sibling path. If the payload moves,
-rewrite the import prefix rather than copying the payload here.
+These are external tests: they exercise the payload as installed code, not a copy.

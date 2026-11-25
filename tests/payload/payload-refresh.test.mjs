@@ -5,6 +5,8 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 
+import { PAYLOAD_REFRESH_CLI_URL } from "./_payload.mjs";
+
 import {
   classifyRefresh,
   collectManifest,
@@ -12,7 +14,7 @@ import {
   readRevision,
   summarizeRefresh,
   writeRevision,
-} from "../../../C03-clean-payload/adapters/pi/payload-refresh-policy.mjs";
+} from "./_payload.mjs";
 
 async function workspace(t, files) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "payload-refresh-"));
@@ -158,7 +160,7 @@ test("the CLI can record a baseline without a payload directory", async (t) => {
     "AgenticLab/AGENTS.md": "a",
     "AgenticLab/brain/x.md": "b",
   });
-  const cli = new URL("../../../C03-clean-payload/adapters/pi/payload-refresh-cli.mjs", import.meta.url);
+  const cli = PAYLOAD_REFRESH_CLI_URL;
 
   const output = await new Promise((resolve, reject) => {
     execFile(
@@ -179,7 +181,7 @@ test("the CLI can record a baseline without a payload directory", async (t) => {
 
 test("the CLI still requires --payload for a preview", async (t) => {
   const dir = await workspace(t, { "AgenticLab/AGENTS.md": "a" });
-  const cli = new URL("../../../C03-clean-payload/adapters/pi/payload-refresh-cli.mjs", import.meta.url);
+  const cli = PAYLOAD_REFRESH_CLI_URL;
 
   const output = await new Promise((resolve) => {
     execFile(

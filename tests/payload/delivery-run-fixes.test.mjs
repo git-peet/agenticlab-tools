@@ -4,10 +4,10 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 
-import { shellReferencesKnowledge } from "../../../C03-clean-payload/adapters/pi/knowledge-write-policy.mjs";
-import { classifySensitivePathAccess } from "../../../C03-clean-payload/adapters/pi/sensitive-path-policy.mjs";
-import { registerActionScopeGate } from "../../../C03-clean-payload/adapters/pi/action-scope-gate.mjs";
-import { CHECKPOINT_RELATIVE_PATH } from "../../../C03-clean-payload/adapters/pi/action-scope-policy.mjs";
+import { shellReferencesKnowledge } from "./_payload.mjs";
+import { classifySensitivePathAccess } from "./_payload.mjs";
+import { registerActionScopeGate } from "./_payload.mjs";
+import { CHECKPOINT_RELATIVE_PATH } from "./_payload.mjs";
 
 const CWD = path.resolve(import.meta.dirname, "..");
 const KNOWLEDGE = "AgenticLab/knowledge";
