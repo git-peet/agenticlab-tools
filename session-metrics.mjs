@@ -75,7 +75,7 @@ const GATE_CATEGORIES = [
 ];
 
 function parseArgs(argv) {
-  const options = { config: null, out: null, run: null, session: null, role: null, label: null };
+  const options = { config: null, out: null, run: null, session: null, role: null, label: null, start: null, end: null };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--config") options.config = argv[++index];
@@ -84,6 +84,8 @@ function parseArgs(argv) {
     else if (arg === "--session") options.session = argv[++index];
     else if (arg === "--role") options.role = argv[++index];
     else if (arg === "--label") options.label = argv[++index];
+    else if (arg === "--start") options.start = argv[++index];
+    else if (arg === "--end") options.end = argv[++index];
   }
   return options;
 }
@@ -153,6 +155,7 @@ export function aggregate({ runId, session }) {
   let provider = "";
   let model = "";
   let thinking = "";
+  const assistantModels = new Map();
   const retrieval = { calls: 0, applicable: 0, noMatch: 0, filtered: 0, unavailable: 0 };
   let testCommands = 0;
   let playwrightCommands = 0;
@@ -173,9 +176,16 @@ export function aggregate({ runId, session }) {
     else counts.other += 1;
 
     if (message.role === "assistant") {
-      provider ||= message.provider ?? "";
-      model ||= message.model ?? "";
-      thinking ||= message.thinkingLevel ?? "";
+      if (message.model) {
+        assistantModels.set(message.model, (assistantModels.get(message.model) ?? 0) + 1);
+      }
+      // Prefer the dominant model in the declared window; a session file can contain
+      // earlier turns on a different model, which would otherwise misattribute cost.
+      if (!model || (message.model && (assistantModels.get(message.model) ?? 0) > (assistantModels.get(model) ?? 0))) {
+        model = message.model ?? model;
+        provider = message.provider ?? provider;
+        thinking = message.thinkingLevel ?? thinking;
+      }
       const messageUsage = message.usage;
       if (messageUsage) {
         usage.input += messageUsage.input ?? 0;
@@ -301,7 +311,7 @@ export async function main(argv = process.argv.slice(2)) {
   } else if (options.session && options.run && options.role) {
     config = {
       runId: options.run,
-      sessions: [{ path: options.session, role: options.role, label: options.label ?? "" }],
+      sessions: [{ path: options.session, role: options.role, label: options.label ?? "", start: options.start, end: options.end }],
     };
   } else {
     process.stderr.write("error: pass --config <file> or --run/--session/--role\n");

@@ -1,3 +1,4 @@
+import { execFile } from "node:child_process";
 import assert from "node:assert/strict";
 import { promises as fs } from "node:fs";
 import os from "node:os";
@@ -129,4 +130,29 @@ test("retrieval activation and outcomes are derived from the adapter's own statu
   assert.equal(row[retrievalStart + 2], 1, "one no_match result");
   assert.equal(row[retrievalStart + 3], 0, "no filtered results");
   assert.equal(row[retrievalStart + 4], 0, "no unavailable results");
+});
+
+test("the CLI honours declared --start and --end windows", async (t) => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "session-metrics-cli-window-"));
+  t.after(async () => fs.rm(dir, { recursive: true, force: true }));
+  const session = path.join(dir, "session.jsonl");
+  const usage = { input: 1, output: 1, cacheRead: 0, cacheWrite: 0, totalTokens: 2, cost: { total: 0 } };
+  await fs.writeFile(session, [
+    entry("message", { role: "user", timestamp: 1000 }),
+    entry("message", assistant(2000, [], usage)),
+    entry("message", { role: "user", timestamp: 5000 }),
+    entry("message", assistant(6000, [], usage)),
+  ].join("\n"), "utf8");
+
+  const cli = path.resolve(import.meta.dirname, "../session-metrics.mjs");
+  const out = path.join(dir, "out");
+  await new Promise((resolve, reject) => {
+    execFile(process.execPath, [cli, "--run", "W", "--session", session, "--role", "delivery_pi", "--label", "w", "--start", "1970-01-01T00:00:02Z", "--end", "1970-01-01T00:00:03Z", "--out", out], (error) => (error ? reject(error) : resolve()));
+  });
+
+  const row = (await fs.readFile(path.join(out, "W-session-metrics.csv"), "utf8")).split("\n")[1];
+  const fields = row.split(",");
+  assert.equal(fields[8], "0"); // the user message at 1 s is outside the window
+  assert.equal(fields[9], "1"); // the assistant message at 6 s is inside the window
+  assert.equal(fields[24], "1"); // input tokens, one assistant in window
 });
