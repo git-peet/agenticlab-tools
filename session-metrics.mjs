@@ -49,17 +49,18 @@ const SESSION_HEADER = [
   "acceptance_tests_passed", "acceptance_tests_total",
   "retrieval_calls", "retrieval_applicable", "retrieval_no_match",
   "retrieval_filtered", "retrieval_unavailable",
-  "attribution_status", "notes",
+  "attribution_status", "notes", "experiment_id",
 ];
 
 const ROUNDTRIP_HEADER = [
   "run_id", "session_role", "session_label", "tool_name", "paired_calls",
   "roundtrip_sum_seconds", "median_seconds", "p90_seconds", "max_seconds", "definition",
+  "experiment_id",
 ];
 
 const GATE_HEADER = [
   "run_id", "session_role", "session_label", "category", "tool_name",
-  "count", "first_seen_utc", "example_reason",
+  "count", "first_seen_utc", "example_reason", "experiment_id",
 ];
 
 const ROUNDTRIP_DEFINITION = "Assistant toolCall entry timestamp to matching toolResult entry timestamp";
@@ -75,7 +76,7 @@ const GATE_CATEGORIES = [
 ];
 
 function parseArgs(argv) {
-  const options = { config: null, out: null, run: null, session: null, role: null, label: null, start: null, end: null };
+  const options = { config: null, out: null, run: null, session: null, role: null, label: null, start: null, end: null, experiment: null };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--config") options.config = argv[++index];
@@ -86,6 +87,7 @@ function parseArgs(argv) {
     else if (arg === "--label") options.label = argv[++index];
     else if (arg === "--start") options.start = argv[++index];
     else if (arg === "--end") options.end = argv[++index];
+    else if (arg === "--experiment") options.experiment = argv[++index];
   }
   return options;
 }
@@ -141,7 +143,7 @@ export async function readEntries(file) {
   return entries;
 }
 
-export function aggregate({ runId, session }) {
+export function aggregate({ runId, experimentId = "", session }) {
   const { entries, windowStart, windowEnd } = session;
 
   const counts = {
@@ -282,6 +284,7 @@ export function aggregate({ runId, session }) {
       session.notes,
       testCommands ? `${testCommands} test-like bash command(s) attempted; not the same as test cases passed` : "",
     ].filter(Boolean).join(" "),
+    experimentId,
   ];
 
   const roundtripRows = [...roundtrips.entries()]
@@ -290,14 +293,14 @@ export function aggregate({ runId, session }) {
       runId, session.role, session.label, name, deltas.length,
       deltas.reduce((a, b) => a + b, 0).toFixed(2),
       percentile(deltas, 50), percentile(deltas, 90),
-      Math.max(...deltas).toFixed(3), ROUNDTRIP_DEFINITION,
+      Math.max(...deltas).toFixed(3), ROUNDTRIP_DEFINITION, experimentId,
     ]);
 
   const gateRows = [...gates.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([category, gate]) => [
       runId, session.role, session.label, category, gate.tool ?? "", gate.count,
-      iso(gate.first), gate.example,
+      iso(gate.first), gate.example, experimentId,
     ]);
 
   return { row, roundtripRows, gateRows };
@@ -319,6 +322,7 @@ export async function main(argv = process.argv.slice(2)) {
   }
 
   const runId = config.runId;
+  const experimentId = config.experimentId ?? options.experiment ?? "";
   if (!runId) {
     process.stderr.write("error: a runId is required\n");
     process.exit(2);
@@ -336,6 +340,7 @@ export async function main(argv = process.argv.slice(2)) {
     const windowEnd = session.end ? Date.parse(session.end) : undefined;
     const aggregateResult = aggregate({
       runId,
+      experimentId,
       session: { ...session, entries, windowStart, windowEnd },
     });
     sessionRows.push(aggregateResult.row);
@@ -355,6 +360,7 @@ export async function main(argv = process.argv.slice(2)) {
 
   process.stdout.write(`${JSON.stringify({
     runId,
+    experimentId,
     sessions: sessionRows.length,
     roundtripTools: roundtripRows.length,
     gateCategories: gateRows.length,

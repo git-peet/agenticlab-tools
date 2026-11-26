@@ -156,3 +156,28 @@ test("the CLI honours declared --start and --end windows", async (t) => {
   assert.equal(fields[9], "1"); // the assistant message at 6 s is inside the window
   assert.equal(fields[24], "1"); // input tokens, one assistant in window
 });
+
+test("experiment id is carried into every exported CSV", async (t) => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "session-metrics-experiment-"));
+  t.after(async () => fs.rm(dir, { recursive: true, force: true }));
+  const session = path.join(dir, "session.jsonl");
+  await fs.writeFile(session, [
+    entry("message", assistant(1000, [call("c1", "bash", { command: "echo hi" })], { input: 1, output: 1, cacheRead: 0, cacheWrite: 0, totalTokens: 2, cost: { total: 0 } })),
+    entry("message", { role: "toolResult", toolCallId: "c1", toolName: "bash", isError: true, timestamp: 1200, content: [{ type: "text", text: "Action-scope fidelity: blocked." }] }),
+  ].join("\n"), "utf8");
+
+  const { row, roundtripRows, gateRows } = aggregate({
+    runId: "R",
+    experimentId: "ALPHA-DELIVERY-R1",
+    session: { role: "delivery_pi", label: "unit", entries: await readEntries(session) },
+  });
+
+  assert.equal(row.at(-1), "ALPHA-DELIVERY-R1");
+  assert.equal(roundtripRows[0].at(-1), "ALPHA-DELIVERY-R1");
+  assert.equal(gateRows[0].at(-1), "ALPHA-DELIVERY-R1");
+  assert.equal(readKnowledgeRecordsCallsSafe(row), "0");
+});
+
+function readKnowledgeRecordsCallsSafe(row) {
+  return String(row[36] ?? "0");
+}

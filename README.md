@@ -103,3 +103,17 @@ node --test tests/payload/*.test.mjs   # payload regression suites
 
 The payload suites resolve their target from `PAYLOAD_ROOT`, defaulting to the sibling
 `Projects/C03-clean-payload` checkout. See `tests/README.md`.
+
+## Experiment tagging
+
+Runs can carry an `experiment_id`, emitted as the final column in all three CSV files:
+
+```bash
+node session-metrics.mjs --config runs/pbi-4.json
+# or
+node session-metrics.mjs --run ALPHA-PBI-4 --session <file> --start <ISO> --end <ISO> \
+  --experiment ALPHA-DELIVERY-R1 --out ./out
+```
+
+In config form, set `"experimentId": "ALPHA-DELIVERY-R1"` at the top level. The tag is data; the tool
+does not interpret it. Use one experiment id for every run in a repeatable comparison series.
